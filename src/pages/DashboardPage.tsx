@@ -15,6 +15,7 @@ export const DashboardPage = () => {
     const { user } = useAuthStore();
     const [activeTab, setActiveTab] = React.useState<'recommended' | 'shortlisted'>('recommended');
 
+
     const { data: recommendations, isLoading: loadingRecs } = useQuery({
         queryKey: ['recommendations'],
         queryFn: () => profileService.getProfiles({ gender: user?.gender === 'Male' ? 'Female' : 'Male' }),
@@ -177,9 +178,9 @@ export const DashboardPage = () => {
                                     </div>
                                 ) : (
                                     visitors?.map((visitor: any) => (
-                                        <Link 
+                                        <Link
                                             to={`/profile/${visitor.user._id}`}
-                                            key={visitor._id} 
+                                            key={visitor._id}
                                             className="flex items-center justify-between p-6 border-b border-gray-50 hover:bg-gray-50 transition-all cursor-pointer group last:border-0"
                                         >
                                             <div className="flex items-center space-x-4">

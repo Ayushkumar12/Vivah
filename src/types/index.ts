@@ -8,6 +8,7 @@ export interface UserProfile {
     gender: Gender;
     height: string;
     caste?: string;
+    religion?: string;
     motherTongue: string;
     location: {
         city: string;

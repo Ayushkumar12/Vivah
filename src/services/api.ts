@@ -1,6 +1,8 @@
 import axios from 'axios';
 
-const API_URL = 'https://vivah2.onrender.com/api';
+// const API_URL = 'https://vivah2.onrender.com/api';
+const API_URL = 'http://localhost:5000/api';
+
 
 const api = axios.create({
     baseURL: API_URL,
@@ -71,26 +73,47 @@ export const profileService = {
     },
 };
 
-
-api.interceptors.response.use((response) => {
-    if (response.data && typeof response.data === 'object') {
-        const normalize = (obj: any): any => {
-            if (Array.isArray(obj)) return obj.map(normalize);
-            if (obj && typeof obj === 'object') {
-                if (obj._id) {
-                    obj.id = obj._id;
-                }
-                Object.keys(obj).forEach(key => {
-                    if (obj[key] && typeof obj[key] === 'object') {
-                        normalize(obj[key]);
-                    }
-                });
-            }
-            return obj;
-        };
-        response.data = normalize(response.data);
+export const paymentService = {
+    createCheckoutSession: async () => {
+        const response = await api.post('/payment/create-checkout-session');
+        return response.data;
+    },
+    verifyPayment: async (data: any) => {
+        const response = await api.post('/payment/verify-payment', data);
+        return response.data;
     }
-    return response;
-});
+};
+
+
+api.interceptors.response.use(
+    (response) => {
+        if (response.data && typeof response.data === 'object') {
+            const normalize = (obj: any): any => {
+                if (Array.isArray(obj)) return obj.map(normalize);
+                if (obj && typeof obj === 'object') {
+                    if (obj._id) {
+                        obj.id = obj._id;
+                    }
+                    Object.keys(obj).forEach(key => {
+                        if (obj[key] && typeof obj[key] === 'object') {
+                            normalize(obj[key]);
+                        }
+                    });
+                }
+                return obj;
+            };
+            response.data = normalize(response.data);
+        }
+        return response;
+    },
+    (error) => {
+        if (error.response?.status === 401) {
+            // Token expired or not provided -> Log out and redirect
+            localStorage.removeItem('auth-storage');
+            window.location.href = '/login';
+        }
+        return Promise.reject(error);
+    }
+);
 
 export default api;
