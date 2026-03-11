@@ -7,6 +7,8 @@ export interface UserProfile {
     age: number;
     gender: Gender;
     height: string;
+    weight?: string;
+    skinColor?: string;
     caste?: string;
     religion?: string;
     motherTongue: string;

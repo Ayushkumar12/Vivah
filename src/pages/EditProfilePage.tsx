@@ -29,6 +29,9 @@ export const EditProfilePage = () => {
             age: 18,
             gender: 'Male',
             height: '',
+            weight: '',
+            skinColor: '',
+            religion: '',
             caste: '',
             motherTongue: '',
             maritalStatus: 'Never Married',
@@ -66,6 +69,9 @@ export const EditProfilePage = () => {
             age: profileData.age || 18,
             gender: profileData.gender || 'Male',
             height: profileData.height || '',
+            weight: profileData.weight || '',
+            skinColor: profileData.skinColor || '',
+            religion: profileData.religion || '',
             caste: profileData.caste || '',
             motherTongue: profileData.motherTongue || '',
             maritalStatus: 'Never Married',
@@ -119,6 +125,9 @@ export const EditProfilePage = () => {
                 age: Number(data.age),
                 gender: data.gender,
                 height: data.height,
+                weight: data.weight,
+                skinColor: data.skinColor,
+                religion: data.religion,
                 caste: data.caste,
                 motherTongue: data.motherTongue,
                 location: { city: data.city, state: data.state, country: data.country },
@@ -197,6 +206,28 @@ export const EditProfilePage = () => {
                                     <input placeholder={`e.g. 5'8"`} {...register('height')} className="w-full p-4 bg-gray-50 border border-gray-200 rounded-2xl outline-none focus:ring-2 focus:ring-brand-500 transition-all" />
                                 </div>
                                 <div>
+                                    <label className="block text-sm font-bold text-gray-700 mb-2">Weight</label>
+                                    <input placeholder={`e.g. 68 kg`} {...register('weight')} className="w-full p-4 bg-gray-50 border border-gray-200 rounded-2xl outline-none focus:ring-2 focus:ring-brand-500 transition-all" />
+                                </div>
+                                <div>
+                                    <label className="block text-sm font-bold text-gray-700 mb-2">Religion</label>
+                                    <input placeholder={`e.g. Hindu`} {...register('religion')} className="w-full p-4 bg-gray-50 border border-gray-200 rounded-2xl outline-none focus:ring-2 focus:ring-brand-500 transition-all" />
+                                </div>
+                                <div>
+                                    <label className="block text-sm font-bold text-gray-700 mb-2">Caste</label>
+                                    <input placeholder={`e.g. Brahmin`} {...register('caste')} className="w-full p-4 bg-gray-50 border border-gray-200 rounded-2xl outline-none focus:ring-2 focus:ring-brand-500 transition-all" />
+                                </div>
+                                <div>
+                                    <label className="block text-sm font-bold text-gray-700 mb-2">Skin Color</label>
+                                    <select {...register('skinColor')} className="w-full p-4 bg-gray-50 border border-gray-200 rounded-2xl outline-none focus:ring-2 focus:ring-brand-500 transition-all appearance-none">
+                                        <option value="">Select Complexion</option>
+                                        <option value="Very Fair">Very Fair</option>
+                                        <option value="Fair">Fair</option>
+                                        <option value="Wheatish">Wheatish</option>
+                                        <option value="Dark">Dark</option>
+                                    </select>
+                                </div>
+                                <div>
                                     <label className="block text-sm font-bold text-gray-700 mb-2">Marital Status</label>
                                     <select {...register('maritalStatus')} className="w-full p-4 bg-gray-50 border border-gray-200 rounded-2xl outline-none focus:ring-2 focus:ring-brand-500 transition-all appearance-none">
                                         <option>Never Married</option>
@@ -250,13 +281,31 @@ export const EditProfilePage = () => {
                         <section className="space-y-4">
                             <h2 className="text-xl font-bold flex items-center">
                                 <User className="w-5 h-5 mr-2 text-brand-600" /> About Me
+                                <span className={`ml-auto text-sm font-normal ${(watch('bio')?.trim().split(/\s+/).filter(Boolean).length || 0) > 300
+                                        ? 'text-red-500 font-bold'
+                                        : 'text-gray-400'
+                                    }`}>
+                                    {watch('bio')?.trim().split(/\s+/).filter(Boolean).length || 0}/300 words
+                                </span>
                             </h2>
                             <textarea
-                                {...register('bio')}
+                                {...register('bio', {
+                                    validate: (value) => {
+                                        if (!value) return true;
+                                        const wordCount = value.trim().split(/\s+/).filter(Boolean).length;
+                                        return wordCount <= 300 || 'Bio must be 300 words or less';
+                                    }
+                                })}
                                 rows={4}
-                                className="w-full p-4 bg-gray-50 border border-gray-200 rounded-2xl outline-none focus:ring-2 focus:ring-brand-500 transition-all resize-none"
+                                className={`w-full p-4 bg-gray-50 border rounded-2xl outline-none focus:ring-2 transition-all resize-none ${(watch('bio')?.trim().split(/\s+/).filter(Boolean).length || 0) > 300
+                                        ? 'border-red-400 focus:ring-red-500'
+                                        : 'border-gray-200 focus:ring-brand-500'
+                                    }`}
                                 placeholder="Tell potential matches about yourself..."
                             />
+                            {(watch('bio')?.trim().split(/\s+/).filter(Boolean).length || 0) > 300 && (
+                                <p className="text-red-500 text-xs font-bold">Please reduce your bio to 300 words or less.</p>
+                            )}
                         </section>
 
                         {/* ── Interests ── */}

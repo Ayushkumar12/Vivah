@@ -10,6 +10,7 @@ import { RegisterPage } from './pages/RegisterPage';
 import { EditProfilePage } from './pages/EditProfilePage';
 import { AdminPage } from './pages/AdminPage';
 import { ProtectedRoute } from './components/ProtectedRoute';
+import { ScrollToTop } from './components/ScrollToTop';
 
 const queryClient = new QueryClient();
 
@@ -17,6 +18,7 @@ function App() {
   return (
     <QueryClientProvider client={queryClient}>
       <Router>
+        <ScrollToTop />
         <Routes>
           {/* Public Routes with Main Layout */}
           <Route path="/" element={<MainLayout />}>

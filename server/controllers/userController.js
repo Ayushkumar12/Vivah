@@ -2,6 +2,12 @@ const User = require('../models/userModel');
 const generateToken = require('../utils/generateToken');
 const { cloudinary } = require('../config/cloudinary');
 
+const countWords = (str) => {
+    if (!str) return 0;
+    return str.trim().split(/\s+/).filter(Boolean).length;
+};
+
+
 // @desc    Auth user & get token
 // @route   POST /api/users/login
 // @access  Public
@@ -38,10 +44,15 @@ const registerUser = async (req, res) => {
     try {
         const {
             fullName, email, password, gender, age, religion,
-            caste, motherTongue, height, city, state,
+            caste, motherTongue, height, weight, skinColor, city, state,
             profession, education, income, bio, interests,
             familyDetails, photos
         } = req.body;
+
+        if (bio && countWords(bio) > 300) {
+            res.status(400).json({ message: 'Bio must be 300 words or less' });
+            return;
+        }
 
         const userExists = await User.findOne({ email });
 
@@ -60,6 +71,8 @@ const registerUser = async (req, res) => {
             caste,
             motherTongue,
             height,
+            weight,
+            skinColor,
             location: { city, state },
             profession,
             education,
@@ -180,10 +193,19 @@ const updateProfile = async (req, res) => {
             user.caste = req.body.caste || user.caste;
             user.motherTongue = req.body.motherTongue || user.motherTongue;
             user.height = req.body.height || user.height;
+            user.weight = req.body.weight || user.weight;
+            user.skinColor = req.body.skinColor || user.skinColor;
             user.profession = req.body.profession || user.profession;
             user.education = req.body.education || user.education;
             user.income = req.body.income || user.income;
-            user.bio = req.body.bio || user.bio;
+
+            if (req.body.bio) {
+                if (countWords(req.body.bio) > 300) {
+                    return res.status(400).json({ message: 'Bio must be 300 words or less' });
+                }
+                user.bio = req.body.bio;
+            }
+
             user.interests = req.body.interests || user.interests;
             user.familyDetails = req.body.familyDetails || user.familyDetails;
             user.location = req.body.location || user.location;

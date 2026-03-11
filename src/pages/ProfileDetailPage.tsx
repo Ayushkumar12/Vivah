@@ -361,7 +361,7 @@ export const ProfileDetailPage = () => {
                                             <div className="w-10 h-10 rounded-xl bg-orange-50 flex items-center justify-center mr-4">
                                                 <Info className="w-5 h-5 text-orange-600" />
                                             </div>
-                                            Background
+                                            Background & Appearance
                                         </h3>
                                         <div className="space-y-5">
                                             <div className="bg-gray-50 px-5 py-4 rounded-xl flex justify-between items-center">
@@ -371,6 +371,14 @@ export const ProfileDetailPage = () => {
                                             <div className="bg-gray-50 px-5 py-4 rounded-xl flex justify-between items-center">
                                                 <span className="text-gray-500 font-medium">Caste</span>
                                                 <span className="font-bold text-gray-900">{profile.caste || 'Not specified'}</span>
+                                            </div>
+                                            <div className="bg-gray-50 px-5 py-4 rounded-xl flex justify-between items-center">
+                                                <span className="text-gray-500 font-medium">Skin Color</span>
+                                                <span className="font-bold text-gray-900">{profile.skinColor || 'Not specified'}</span>
+                                            </div>
+                                            <div className="bg-gray-50 px-5 py-4 rounded-xl flex justify-between items-center">
+                                                <span className="text-gray-500 font-medium">Weight</span>
+                                                <span className="font-bold text-gray-900">{profile.weight || 'Not specified'}</span>
                                             </div>
                                         </div>
                                     </section>

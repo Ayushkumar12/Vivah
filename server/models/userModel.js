@@ -11,6 +11,8 @@ const userSchema = new mongoose.Schema({
     caste: { type: String },
     motherTongue: { type: String },
     height: { type: String },
+    weight: { type: String },
+    skinColor: { type: String },
     location: {
         city: { type: String },
         state: { type: String },
@@ -20,7 +22,16 @@ const userSchema = new mongoose.Schema({
     education: { type: String },
     income: { type: String },
     photos: [{ type: String }],
-    bio: { type: String },
+    bio: {
+        type: String,
+        validate: {
+            validator: function (v) {
+                if (!v) return true;
+                return v.trim().split(/\s+/).filter(Boolean).length <= 300;
+            },
+            message: 'Bio must be 300 words or less'
+        }
+    },
     interests: [{ type: String }],
     familyDetails: {
         fatherStatus: { type: String },
