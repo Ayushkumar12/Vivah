@@ -55,7 +55,7 @@ const verifyPayment = async (req, res) => {
                     user: userId,
                     razorpay_order_id,
                     razorpay_payment_id,
-                    amount: 9000000, // Since we hardcoded 100 paise
+                    amount: 9000, // Since we hardcoded 100 paise
                     currency: 'INR',
                     status: 'Success',
                     plan: 'Gold'
