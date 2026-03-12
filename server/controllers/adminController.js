@@ -1,6 +1,8 @@
 const User = require('../models/userModel');
 const Transaction = require('../models/transactionModel');
 const generateToken = require('../utils/generateToken');
+const os = require('os');
+const mongoose = require('mongoose');
 
 // @desc    Get all users (admin)
 // @route   GET /api/admin/users
@@ -98,22 +100,68 @@ const getStats = async (req, res) => {
         const verifiedUsers = await User.countDocuments({ isVerified: true, isAdmin: { $ne: true } });
         const premiumUsers = await User.countDocuments({ subscriptionTier: { $in: ['Gold', 'Diamond', 'Silver'] }, isAdmin: { $ne: true } });
 
-        // New registrations in last 7 days
-        const sevenDaysAgo = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000);
-        const newUsers = await User.countDocuments({ createdAt: { $gte: sevenDaysAgo }, isAdmin: { $ne: true } });
+        // Time-series data for the last 7 days
+        const last7Days = [];
+        for (let i = 6; i >= 0; i--) {
+            const date = new Date();
+            date.setHours(0, 0, 0, 0);
+            date.setDate(date.getDate() - i);
+            const nextDate = new Date(date);
+            nextDate.setDate(nextDate.getDate() + 1);
+
+            const userCount = await User.countDocuments({
+                createdAt: { $gte: date, $lt: nextDate },
+                isAdmin: { $ne: true }
+            });
+
+            const revenueData = await Transaction.aggregate([
+                { $match: { createdAt: { $gte: date, $lt: nextDate }, status: 'Success' } },
+                { $group: { _id: null, total: { $sum: '$amount' } } }
+            ]);
+            const revenueCount = revenueData.length > 0 ? revenueData[0].total : 0;
+
+            last7Days.push({
+                name: date.toLocaleDateString('en-US', { weekday: 'short' }),
+                date: date.toISOString().split('T')[0],
+                users: userCount,
+                revenue: revenueCount
+            });
+        }
+
+        // Religion breakdown
+        const religionBreakdown = await User.aggregate([
+            { $match: { isAdmin: { $ne: true }, religion: { $exists: true, $ne: null } } },
+            { $group: { _id: '$religion', count: { $sum: 1 } } },
+            { $sort: { count: -1 } }
+        ]);
+
+        // Age distribution
+        const ageDistribution = await User.aggregate([
+            { $match: { isAdmin: { $ne: true } } },
+            {
+                $bucket: {
+                    groupBy: "$age",
+                    boundaries: [18, 25, 30, 35, 40, 50, 60, 100],
+                    default: "Other",
+                    output: {
+                        count: { $sum: 1 }
+                    }
+                }
+            }
+        ]);
 
         // Subscription breakdown
         const subscriptionBreakdown = await User.aggregate([
-            { $match: { isAdmin: { $ne: true } } }, // Exclude admins from breakdown
+            { $match: { isAdmin: { $ne: true } } },
             { $group: { _id: '$subscriptionTier', count: { $sum: 1 } } }
         ]);
 
-        // Total Revenue (transactions are not directly tied to isAdmin status of the user who made them, but rather the transaction itself)
-        const revenueData = await Transaction.aggregate([
+        // Total Revenue
+        const revenueTotalData = await Transaction.aggregate([
             { $match: { status: 'Success' } },
             { $group: { _id: null, total: { $sum: '$amount' } } }
         ]);
-        const totalRevenue = revenueData.length > 0 ? revenueData[0].total : 0;
+        const totalRevenue = revenueTotalData.length > 0 ? revenueTotalData[0].total : 0;
 
         res.json({
             totalUsers,
@@ -121,9 +169,11 @@ const getStats = async (req, res) => {
             femaleUsers,
             verifiedUsers,
             premiumUsers,
-            newUsers,
-            subscriptionBreakdown,
             totalRevenue,
+            last7Days,
+            religionBreakdown,
+            ageDistribution,
+            subscriptionBreakdown,
         });
     } catch (error) {
         console.error('Admin getStats Error:', error);
@@ -194,4 +244,57 @@ const getAllTransactions = async (req, res) => {
     }
 };
 
-module.exports = { getAllUsers, bulkDeleteUsers, deleteUser, toggleVerify, getStats, seedAdmin, getAllTransactions };
+// @desc    Get platform health metrics
+// @route   GET /api/admin/health
+// @access  Admin
+const getPlatformHealth = async (req, res) => {
+    try {
+        const uptime = process.uptime();
+        const memoryUsage = process.memoryUsage();
+        const systemMemory = {
+            total: os.totalmem(),
+            free: os.freemem(),
+            used: os.totalmem() - os.freemem(),
+        };
+
+        const cpuUsage = os.loadavg(); // Returns 1, 5, and 15 minute load averages
+        const dbStatus = mongoose.connection.readyState === 1 ? 'Connected' : 'Disconnected';
+
+        // Get some basic app stats
+        const totalUsers = await User.countDocuments();
+        const pendingVerifications = await User.countDocuments({ isVerified: false, isAdmin: { $ne: true } });
+
+        res.json({
+            status: 'Healthy',
+            uptime: Math.floor(uptime),
+            memory: {
+                process: {
+                    rss: memoryUsage.rss,
+                    heapTotal: memoryUsage.heapTotal,
+                    heapUsed: memoryUsage.heapUsed,
+                },
+                system: systemMemory,
+            },
+            cpu: {
+                loadAverage: cpuUsage,
+                cores: os.cpus().length,
+                model: os.cpus()[0].model,
+            },
+            database: {
+                status: dbStatus,
+                name: mongoose.connection.name,
+            },
+            platform: os.platform(),
+            nodeVersion: process.version,
+            appStats: {
+                totalUsers,
+                pendingVerifications,
+            }
+        });
+    } catch (error) {
+        console.error('Admin getPlatformHealth Error:', error);
+        res.status(500).json({ message: 'Server Error' });
+    }
+};
+
+module.exports = { getAllUsers, bulkDeleteUsers, deleteUser, toggleVerify, getStats, seedAdmin, getAllTransactions, getPlatformHealth };

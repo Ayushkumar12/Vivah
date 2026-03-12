@@ -10,11 +10,7 @@ import { profileService } from '../services/api';
 import { useQuery } from '@tanstack/react-query';
 import type { UserProfile } from '../types';
 
-const INTERESTS_OPTIONS = [
-    'Reading', 'Cooking', 'Travelling', 'Music', 'Fitness', 'Yoga',
-    'Photography', 'Movies', 'Gaming', 'Dancing', 'Painting', 'Cricket',
-    'Gardening', 'Writing', 'Cycling', 'Swimming',
-];
+import { RELIGIONS, MARITAL_STATUS_OPTIONS, FAMILY_VALUES_OPTIONS, SKIN_COLOR_OPTIONS, INTERESTS_OPTIONS } from '../data/constants';
 
 export const EditProfilePage = () => {
     const { user, updateUser } = useAuthStore();
@@ -211,7 +207,12 @@ export const EditProfilePage = () => {
                                 </div>
                                 <div>
                                     <label className="block text-sm font-bold text-gray-700 mb-2">Religion</label>
-                                    <input placeholder={`e.g. Hindu`} {...register('religion')} className="w-full p-4 bg-gray-50 border border-gray-200 rounded-2xl outline-none focus:ring-2 focus:ring-brand-500 transition-all" />
+                                    <select {...register('religion')} className="w-full p-4 bg-gray-50 border border-gray-200 rounded-2xl outline-none focus:ring-2 focus:ring-brand-500 transition-all appearance-none">
+                                        <option value="">Select Religion</option>
+                                        {RELIGIONS.map(religion => (
+                                            <option key={religion} value={religion}>{religion}</option>
+                                        ))}
+                                    </select>
                                 </div>
                                 <div>
                                     <label className="block text-sm font-bold text-gray-700 mb-2">Caste</label>
@@ -221,19 +222,17 @@ export const EditProfilePage = () => {
                                     <label className="block text-sm font-bold text-gray-700 mb-2">Skin Color</label>
                                     <select {...register('skinColor')} className="w-full p-4 bg-gray-50 border border-gray-200 rounded-2xl outline-none focus:ring-2 focus:ring-brand-500 transition-all appearance-none">
                                         <option value="">Select Complexion</option>
-                                        <option value="Very Fair">Very Fair</option>
-                                        <option value="Fair">Fair</option>
-                                        <option value="Wheatish">Wheatish</option>
-                                        <option value="Dark">Dark</option>
+                                        {SKIN_COLOR_OPTIONS.map(option => (
+                                            <option key={option} value={option}>{option}</option>
+                                        ))}
                                     </select>
                                 </div>
                                 <div>
                                     <label className="block text-sm font-bold text-gray-700 mb-2">Marital Status</label>
                                     <select {...register('maritalStatus')} className="w-full p-4 bg-gray-50 border border-gray-200 rounded-2xl outline-none focus:ring-2 focus:ring-brand-500 transition-all appearance-none">
-                                        <option>Never Married</option>
-                                        <option>Divorced</option>
-                                        <option>Widowed</option>
-                                        <option>Awaiting Divorce</option>
+                                        {MARITAL_STATUS_OPTIONS.map(status => (
+                                            <option key={status} value={status}>{status}</option>
+                                        ))}
                                     </select>
                                 </div>
                             </div>
@@ -355,9 +354,9 @@ export const EditProfilePage = () => {
                                 <div>
                                     <label className="block text-sm font-bold text-gray-700 mb-2">Family Values</label>
                                     <select {...register('familyValues')} className="w-full p-4 bg-gray-50 border border-gray-200 rounded-2xl outline-none focus:ring-2 focus:ring-brand-500 transition-all appearance-none">
-                                        <option>Traditional</option>
-                                        <option>Moderate</option>
-                                        <option>Liberal</option>
+                                        {FAMILY_VALUES_OPTIONS.map(value => (
+                                            <option key={value} value={value}>{value}</option>
+                                        ))}
                                     </select>
                                 </div>
                             </div>

@@ -6,6 +6,7 @@ import { profileService } from '../services/api';
 import type { UserProfile } from '../types';
 import { ProfileCard } from '../components/ProfileCard';
 import { motion, AnimatePresence } from 'framer-motion';
+import { RELIGIONS } from '../data/constants';
 
 export const SearchPage = () => {
     const [searchParams] = useSearchParams();
@@ -17,6 +18,7 @@ export const SearchPage = () => {
         gender: 'All',
         ageMin: 18,
         ageMax: 50,
+        religion: 'All',
         city: 'All'
     };
 
@@ -24,6 +26,7 @@ export const SearchPage = () => {
         gender: searchParams.get('gender') || 'All',
         ageMin: Number(searchParams.get('ageMin')) || 18,
         ageMax: Number(searchParams.get('ageMax')) || 50,
+        religion: searchParams.get('religion') || 'All',
         city: 'All'
     });
 
@@ -96,6 +99,18 @@ export const SearchPage = () => {
                                     onChange={(e) => setFilters({ ...filters, city: e.target.value })}
                                 >
                                     {locations.map(l => <option key={l} value={l}>{l}</option>)}
+                                </select>
+                            </div>
+
+                            <div className="pt-6 border-t border-gray-100">
+                                <label className="text-sm font-bold text-gray-500 uppercase tracking-wider block mb-3">Religion</label>
+                                <select
+                                    className="w-full p-3 bg-gray-50 border border-gray-200 rounded-xl outline-none focus:ring-2 focus:ring-brand-500"
+                                    value={filters.religion}
+                                    onChange={(e) => setFilters({ ...filters, religion: e.target.value })}
+                                >
+                                    <option value="All">All Religions</option>
+                                    {RELIGIONS.map(r => <option key={r} value={r}>{r}</option>)}
                                 </select>
                             </div>
 
@@ -206,6 +221,18 @@ export const SearchPage = () => {
                                             {[...Array(33)].map((_, i) => <option key={i + 18} selected={i === 12}>{i + 18}</option>)}
                                         </select>
                                     </div>
+                                </div>
+
+                                <div>
+                                    <label className="text-sm font-bold text-gray-500 uppercase tracking-wider block mb-4">Religion</label>
+                                    <select 
+                                        className="w-full p-4 bg-gray-50 border border-gray-200 rounded-2xl outline-none"
+                                        value={filters.religion}
+                                        onChange={(e) => setFilters({ ...filters, religion: e.target.value })}
+                                    >
+                                        <option value="All">All Religions</option>
+                                        {RELIGIONS.map(r => <option key={r} value={r}>{r}</option>)}
+                                    </select>
                                 </div>
                             </div>
 

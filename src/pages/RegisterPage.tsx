@@ -4,6 +4,7 @@ import { Heart, User, MapPin, Briefcase, Camera, ChevronRight, ChevronLeft, Chec
 import { motion, AnimatePresence } from 'framer-motion';
 import { useAuthStore } from '../store/useAuthStore';
 import { profileService, authService } from '../services/api';
+import { RELIGIONS } from '../data/constants';
 
 export const RegisterPage = () => {
     const [step, setStep] = useState(1);
@@ -18,6 +19,7 @@ export const RegisterPage = () => {
         password: '',
         gender: 'Male',
         age: 18,
+        religion: '',
         city: '',
         profession: '',
         education: '',
@@ -233,6 +235,20 @@ export const RegisterPage = () => {
                                             className="w-full p-4 bg-gray-50 border border-gray-200 rounded-2xl outline-none focus:ring-2 focus:ring-brand-500 focus:bg-white transition-all"
                                             placeholder="Years"
                                         />
+                                    </div>
+                                    <div className="md:col-span-2">
+                                        <label className="block text-sm font-bold text-gray-700 mb-2">Religion</label>
+                                        <select
+                                            name="religion"
+                                            value={formData.religion}
+                                            onChange={handleChange}
+                                            className="w-full p-4 bg-gray-50 border border-gray-200 rounded-2xl outline-none focus:ring-2 focus:ring-brand-500 focus:bg-white transition-all appearance-none"
+                                        >
+                                            <option value="">Select Religion</option>
+                                            {RELIGIONS.map(r => (
+                                                <option key={r} value={r}>{r}</option>
+                                            ))}
+                                        </select>
                                     </div>
                                     <div className="md:col-span-2">
                                         <label className="block text-sm font-bold text-gray-700 mb-2">Gender</label>

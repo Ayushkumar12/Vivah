@@ -10,6 +10,7 @@ const {
     getStats,
     seedAdmin,
     getAllTransactions,
+    getPlatformHealth,
 } = require('../controllers/adminController');
 
 // Seed admin (public, only works once)
@@ -18,6 +19,7 @@ router.post('/seed', seedAdmin);
 // All routes below require auth + admin
 router.use(protect, adminMiddleware);
 
+router.get('/health', getPlatformHealth);
 router.get('/stats', getStats);
 router.get('/users', getAllUsers);
 router.get('/transactions', getAllTransactions);
