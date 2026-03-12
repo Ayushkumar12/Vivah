@@ -49,9 +49,23 @@ app.use(mongoSanitize());
 
 
 // CORS Configuration
+const allowedOrigins = [
+    'http://localhost:5173',
+    'https://vivah-plum.vercel.app',
+    process.env.FRONTEND_URL,
+    process.env.CLIENT_URL
+].filter(Boolean);
+
 const corsOptions = {
-    origin: process.env.CLIENT_URL || 'https://vivah-plum.vercel.app',
+    origin: (origin, callback) => {
+        if (!origin || allowedOrigins.includes(origin)) {
+            callback(null, true);
+        } else {
+            callback(new Error('Not allowed by CORS'));
+        }
+    },
     credentials: true,
+    optionsSuccessStatus: 200
 };
 app.use(cors(corsOptions));
 
